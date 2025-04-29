@@ -1,43 +1,72 @@
 const express = require('express');
-let books = require("./booksdb.js");
-let isValid = require("./auth_users.js").isValid;
-let users = require("./auth_users.js").users;
-const public_users = express.Router();
+const router = express.Router();
+const books = require("./booksdb.js");
 
-
-public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Task 10: Get all books (Async/Await)
+router.get('/', async (req, res) => {
+  try {
+    // Simulate async operation
+    const getBooks = () => {
+      return new Promise((resolve) => {
+        process.nextTick(() => resolve(books));
+      });
+    };
+    
+    const bookList = await getBooks();
+    res.status(200).json(bookList);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching books" });
+  }
 });
 
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Task 11: Get book by ISBN (Promise)
+router.get('/isbn/:isbn', (req, res) => {
+  new Promise((resolve, reject) => {
+    process.nextTick(() => {
+      const book = books[req.params.isbn];
+      book ? resolve(book) : reject("Book not found");
+    });
+  })
+  .then(book => res.status(200).json(book))
+  .catch(err => res.status(404).json({ message: err }));
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
-  
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Task 12: Get books by author (Async/Await)
+router.get('/author/:author', async (req, res) => {
+  try {
+    const getBooks = () => {
+      return new Promise((resolve) => {
+        process.nextTick(() => resolve(books));
+      });
+    };
+    
+    const allBooks = await getBooks();
+    const filtered = Object.values(allBooks).filter(book => 
+      book.author.toLowerCase().includes(req.params.author.toLowerCase())
+    );
+    res.status(200).json(filtered);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching by author" });
+  }
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Task 13: Get books by title (Async/Await)
+router.get('/title/:title', async (req, res) => {
+  try {
+    const getBooks = () => {
+      return new Promise((resolve) => {
+        process.nextTick(() => resolve(books));
+      });
+    };
+    
+    const allBooks = await getBooks();
+    const filtered = Object.values(allBooks).filter(book => 
+      book.title.toLowerCase().includes(req.params.title.toLowerCase())
+    );
+    res.status(200).json(filtered);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching by title" });
+  }
 });
 
-//  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
-});
-
-module.exports.general = public_users;
+module.exports.general = router;
